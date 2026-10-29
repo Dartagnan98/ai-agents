@@ -147,3 +147,7 @@ npx tsc --noEmit     # type check
 ```
 
 The app is Next.js 16 with SQLite (better-sqlite3). The agents' code is in `src/lib/ai`, the pages in `src/app/(dashboard)`, and the screens in `src/components`.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
