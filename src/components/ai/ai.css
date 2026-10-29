@@ -1,0 +1,125 @@
+/* the agents replies (D, 2026-10-09): agent chat look (components/agents/agents.css, Macro's classes) on Fleet's tokens, so
+   light and dark both follow the app theme. Sizes kept: body 14/22, chrome 13, tool rows 28. Scoped under .fai. */
+
+.fai {
+  --fai-text: var(--foreground);
+  --fai-2: color-mix(in srgb, var(--foreground) 78%, transparent);
+  --fai-mute: var(--muted-foreground);
+  --fai-dim: color-mix(in srgb, var(--foreground) 56%, transparent);
+  --fai-line: color-mix(in srgb, var(--foreground) 9%, transparent);
+  --fai-line-2: color-mix(in srgb, var(--foreground) 14%, transparent);
+  --fai-hover: color-mix(in srgb, var(--foreground) 5%, transparent);
+  --fai-surface: var(--card);
+  --fai-mono: var(--font-mono);
+}
+
+/* ── Turns ── */
+.fai-user { align-self: flex-end; width: fit-content; max-width: 85%; margin: 6px 0 14px auto; padding: 10px 16px; border-radius: 24px; background: var(--primary); color: var(--primary-foreground); font-size: 15.5px; line-height: 25px; white-space: pre-wrap; word-break: break-word; }
+.dark .fai-user { background: var(--inset); color: var(--foreground); box-shadow: inset 0 0 0 1px var(--fai-line); }
+.fai-asst { display: flex; flex-direction: column; min-width: 0; margin-bottom: 14px; }
+.fai-asst > .fai-text { margin-top: 2px; }
+.fai-steps + .fai-text { margin-top: 6px; }
+
+/* ── Text ── */
+.fai-text { font-size: 15.5px; line-height: 25px; color: var(--fai-text); white-space: pre-wrap; word-break: break-word; }
+.fai-text a { color: var(--fai-text); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+.fai-text code { font-family: var(--fai-mono); font-size: .86em; background: var(--inset); border-radius: 4px; padding: 1px 4px; }
+.fai-text strong { font-weight: 600; }
+.fai-text.is-blocks { white-space: normal; display: flex; flex-direction: column; gap: 8px; }
+.fai-text.is-blocks > p { margin: 0; white-space: pre-wrap; }
+.fai-text .fai-h { font-weight: 600; margin-top: 4px; }
+.fai-text .fai-h1 { font-size: 18px; line-height: 27px; }
+.fai-text ul, .fai-text ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 2px; }
+.fai-text ul { list-style: disc; }
+.fai-text ol { list-style: decimal; }
+.fai-text li { white-space: pre-wrap; padding-left: 2px; }
+.fai-text li::marker { color: var(--fai-mute); font-variant-numeric: tabular-nums; }
+.fai-text blockquote { margin: 0; padding: 0 0 0 12px; border-left: 2px solid var(--fai-line-2); color: var(--fai-2); white-space: pre-wrap; }
+.fai-text hr { border: 0; border-top: 1px solid var(--fai-line); margin: 4px 0; width: 100%; }
+
+/* ── Working glow (CTRL Flow ag-shine) ── */
+@keyframes fai-shine { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+@keyframes fai-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.8); } }
+.fai-shimmer { background: linear-gradient(90deg, var(--fai-mute) 0%, var(--fai-text) 50%, var(--fai-mute) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: fai-shine 1.6s linear infinite; }
+.fai-working { display: flex; align-items: center; min-height: 28px; font-size: 14px; line-height: 20px; color: var(--fai-mute); }
+.fai-sdot { width: 7px; height: 7px; border-radius: 999px; background: var(--fai-dim); display: inline-block; flex: none; animation: fai-pulse 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .fai-shimmer, .fai-sdot { animation: none !important; } }
+
+/* ── Run steps ── */
+.fai-steps { display: flex; flex-direction: column; gap: 2px; }
+.fai-called { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 28px; padding: 0; margin-left: -2px; background: none; border: 0; cursor: pointer; font-size: 14px; line-height: 20px; color: var(--fai-dim); text-align: left; }
+.fai-called:hover { color: var(--fai-2); }
+.fai-called > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.fai-called .fai-caret { opacity: 0; }
+.fai-called:hover .fai-caret, .fai-called:focus-visible .fai-caret, .fai-called.is-open .fai-caret { opacity: 1; }
+.fai-called:active:not(:disabled), .fai-trow:active:not(:disabled), .fai-tbl th button:active, .fai-mini:active, .fai-ib:active, .fai-act:active { transform: none; }
+.fai-caret { flex: none; transition: transform .15s ease; color: var(--fai-mute); }
+.fai-tools { display: flex; flex-direction: column; margin: 0 0 4px; padding-left: 4px; }
+.fai-trow { display: flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 6px 0 2px; margin-left: -2px; border-radius: 6px; font-size: 14px; line-height: 20px; color: var(--fai-dim); }
+.fai-trow .ic { width: 16px; height: 16px; display: grid; place-items: center; flex: none; color: var(--fai-mute); }
+.fai-trow .tt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fai-2); }
+.fai-trow.is-done .ic { color: var(--healthy); }
+.fai-trow.is-stale .fai-sdot { animation: none; opacity: .5; }
+.fai-trow.is-error .ic, .fai-trow.is-error .tt { color: var(--weak); }
+
+/* ── Rich views ── */
+.fai-rich { border-radius: 12px; box-shadow: inset 0 0 0 1px var(--fai-line-2); overflow: hidden; min-width: 0; white-space: normal; background: var(--fai-surface); }
+.fai-rich-h { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 2px 0 10px; border-bottom: 1px solid var(--fai-line); }
+.fai-rich-h .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; line-height: 18px; font-weight: 500; color: var(--fai-mute); }
+.fai-rich-wait { min-height: 28px; display: flex; align-items: center; font-size: 14px; line-height: 20px; }
+.fai-code pre { margin: 0; padding: 6px 10px; max-height: 360px; overflow: auto; font: 400 12px/18px var(--fai-mono); color: var(--fai-text); white-space: pre; }
+.fai-code pre code { background: none; padding: 0; border-radius: 0; font: inherit; }
+.fai-tbl-scroll { overflow: auto; max-height: 360px; }
+.fai-tbl { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 20px; font-variant-numeric: tabular-nums; }
+.fai-tbl th { position: sticky; top: 0; z-index: 1; background: var(--fai-surface); height: 28px; padding: 0; text-align: left; border-bottom: 1px solid var(--fai-line); }
+.fai-tbl th button { display: inline-flex; align-items: center; gap: 4px; width: 100%; height: 28px; padding: 0 10px; border: 0; background: none; cursor: pointer; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--fai-mute); white-space: nowrap; }
+.fai-tbl th.n button { justify-content: flex-end; }
+.fai-tbl th button:hover { color: var(--fai-text); }
+.fai-tbl th svg { color: var(--fai-mute); opacity: 0; flex: none; }
+.fai-tbl th button:hover svg, .fai-tbl th svg.on { opacity: 1; }
+.fai-tbl td { height: 28px; padding: 4px 10px; border-bottom: 1px solid var(--fai-line); color: var(--fai-text); vertical-align: top; white-space: nowrap; max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+.fai-tbl tr:last-child td { border-bottom: 0; }
+.fai .fai-tbl tbody tr:hover td { background: var(--fai-hover); }
+.fai-tbl td.n { text-align: right; }
+.fai-chart { padding: 0 0 6px; }
+.fai-chart-box { height: 220px; padding: 8px 8px 0 0; }
+.fai-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+.fai-card { display: flex; align-items: flex-start; gap: 8px; min-width: 0; padding: 6px 8px; border-radius: 8px; background: var(--fai-surface); box-shadow: inset 0 0 0 1px var(--fai-line-2); color: var(--fai-text); text-decoration: none; }
+.fai-text a.fai-card, .fai-text a.fai-act { text-decoration: none; }
+a.fai-card:hover { background: color-mix(in srgb, var(--foreground) 4%, var(--fai-surface)); }
+.fai-card .ic { width: 16px; height: 18px; display: grid; place-items: center; flex: none; color: var(--fai-mute); }
+.fai-card .bd { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fai-card .l1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.fai-card .tt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; line-height: 20px; font-weight: 500; }
+.fai-card .st { flex: none; height: 18px; padding: 0 6px; border-radius: 999px; font-size: 11px; line-height: 18px; font-weight: 500; color: var(--fai-2); background: var(--inset); }
+.fai-card .sub { font-size: 13px; line-height: 18px; color: var(--fai-mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fai-card .fl { display: flex; flex-wrap: wrap; gap: 0 10px; margin-top: 2px; font-size: 13px; line-height: 18px; color: var(--fai-2); }
+.fai-card .fl .k { color: var(--fai-mute); }
+.fai-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.fai-act { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 999px; border: 0; background: var(--fai-surface); box-shadow: inset 0 0 0 1px var(--fai-line-2); color: var(--fai-text); font-size: 14px; line-height: 1; font-weight: 500; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.fai-act:hover { background: var(--fai-hover); }
+.fai-act.is-primary { background: var(--fai-text); color: var(--card); box-shadow: none; }
+.fai-act.is-primary:hover { background: color-mix(in srgb, var(--fai-text) 88%, var(--card)); }
+
+/* ── Small buttons, reply footer ── */
+.fai-mini { flex: none; height: 24px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--fai-mute); font-size: 12px; line-height: 24px; font-weight: 500; cursor: pointer; }
+.fai-mini:hover { background: var(--fai-hover); color: var(--fai-text); }
+.fai-tacts { display: flex; align-items: center; gap: 2px; height: 24px; margin: 4px 0 0 -4px; opacity: 0; transition: opacity .12s; }
+.fai-asst:hover .fai-tacts, .fai-tacts:focus-within, .fai-asst.is-last .fai-tacts { opacity: 1; }
+.fai-asst.is-last:not(:hover) .fai-tacts { opacity: .6; }
+@media (hover: none) { .fai-tacts { opacity: .6; } }
+.fai-ib { width: 24px; height: 24px; display: grid; place-items: center; border: 0; border-radius: 6px; background: none; color: var(--fai-mute); cursor: pointer; }
+.fai-ib:hover { background: var(--fai-hover); color: var(--fai-text); }
+.fai-time { font-size: 13px; line-height: 24px; color: var(--fai-mute); padding: 0 4px; font-variant-numeric: tabular-nums; }
+
+/* phones (D, 2026-10-12): standard iPhone sizes, body 16, small text 14, targets 36+ */
+/* phones: the CTRL Flow iPhone chat's sizes (D, 2026-10-20): 17 messages, 15 tool lines and buttons, 13 labels */
+@media (max-width: 767px) {
+  .fai-user, .fai-text { font-size: 17px; line-height: 26px; }
+  .fai-text .fai-h1 { font-size: 20px; line-height: 28px; }
+  .fai-working, .fai-called, .fai-trow, .fai-rich-wait, .fai-tbl, .fai-card .tt { font-size: 15px; line-height: 22px; }
+  .fai-card .sub, .fai-card .fl, .fai-rich-h .t, .fai-tbl th button, .fai-time, .fai-card .st { font-size: 13px; line-height: 18px; }
+  .fai-code pre { font-size: 13px; line-height: 20px; }
+  .fai-act { height: 40px; padding: 0 16px; font-size: 15px; }
+  .fai-mini { height: 32px; font-size: 14px; line-height: 32px; }
+}

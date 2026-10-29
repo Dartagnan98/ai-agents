@@ -1,0 +1,530 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./shadcn-tailwind.css"; /* vendored from shadcn (D 2026-10-12: no CLI in the runtime deps) */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-instrument), "Instrument Sans", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  --font-heading: var(--font-sora), "Sora", system-ui, sans-serif;
+  --font-display: var(--font-sora), "Sora", system-ui, sans-serif;
+  --color-ink: var(--ink);
+  --color-rail: var(--rail);
+  --color-canvas: var(--canvas);
+  --color-inset: var(--inset);
+  --color-hairline: var(--hairline);
+  --color-label: var(--label);
+  --color-cobalt: var(--cobalt);
+  --color-cobalt-tint: var(--cobalt-tint);
+  --color-healthy: var(--healthy);
+  --color-healthy-bg: var(--healthy-bg);
+  --color-watch: var(--watch);
+  --color-watch-bg: var(--watch-bg);
+  --color-weak: var(--weak);
+  --color-weak-bg: var(--weak-bg);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ============================================
+   Micro-interactions & Polish
+   ============================================ */
+
+/* Smooth page transitions: a fade only (D, 2026-10-16: the top bar kept getting cut off). The old 4px slide pushed <main> past the
+   bottom of the pinned frame while it ran, so the frame could scroll and the top bar slid up out of view. */
+main {
+  animation: mainFade 0.2s ease-out;
+}
+@keyframes mainFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Porcelain Signal: cards float on the canvas, titles are firm, descriptions quiet. */
+[data-slot="card"] {
+  transition: box-shadow 0.2s ease;
+}
+[data-slot="card-title"] {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+[data-slot="card-description"] {
+  font-weight: 400;
+  max-width: 80ch;
+}
+/* Table headers read as mono micro-labels, numbers line up. */
+[data-slot="table-head"] {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+[data-slot="table-cell"] { font-variant-numeric: tabular-nums; }
+.micro-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+/* inside a call pop-up the section headings read as headings (D, 2026-10-02: "these titles should be darker or bolder") */
+.call-popup-body .micro-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--foreground);
+}
+
+/* Sidebar nav item transitions */
+aside a {
+  transition: all 0.15s ease;
+}
+
+/* Badge pulse for urgent items */
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-badge-pulse {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+/* Button press effect */
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Input focus glow */
+input:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(40, 72, 232, 0.14);
+}
+
+/* Smooth accordion expand */
+[data-slot="accordion-content"] {
+  transition: height 0.2s ease-out;
+}
+
+/* Status dot pulse */
+@keyframes statusPulse {
+  0%, 100% { box-shadow: 0 0 0 0 currentColor; }
+  50% { box-shadow: 0 0 0 4px transparent; }
+}
+
+/* Sheet slide-in enhancement */
+[data-slot="sheet-content"] {
+  animation: sheetSlideIn 0.25s ease-out;
+}
+@keyframes sheetSlideIn {
+  from { transform: translateX(20px); opacity: 0.5; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Dialog scale-in */
+[role="dialog"] {
+  animation: dialogScaleIn 0.2s ease-out;
+}
+@keyframes dialogScaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Table row hover */
+tr:hover td {
+  background-color: rgba(14, 20, 34, 0.018);
+}
+.dark tr:hover td {
+  background-color: rgba(255,255,255,0.02);
+}
+
+/* Frozen first column on wide tables (components/sales/kit.ts STICKY*): always opaque, also on row hover, so scrolled cells never show
+   through the name (D, 2026-10-06). Unlayered like the hover rule above, so it wins over it. */
+.sticky-col { background-color: var(--card); }
+tr:hover td.sticky-col, .dark tr:hover td.sticky-col { background-color: var(--row-hover-solid); }
+.sticky-total, tr:hover td.sticky-total, .dark tr:hover td.sticky-total { background-color: var(--total-row-solid); }
+/* Breathing room at the frozen edge (D, 2026-10-06: "it overlaps a bit coming off the frozen side"): space before the divider and
+   before the first scrolling column, on every frozen sheet (desktop, where the column is pinned). */
+@media (min-width: 768px) {
+  .sticky-col, .sticky-total { padding-right: 1.25rem !important; }
+  .sticky-col + td, .sticky-col + th, .sticky-total + td, .sticky-total + th { padding-left: 1.25rem !important; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.25);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* ============================================
+   Mobile safe area for bottom nav bar
+   ============================================ */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Porcelain Signal (2026-09-29): porcelain surfaces, one cobalt accent, mono data.
+   Dark mode is the Signal palette. Health colours only ever mean healthy / watch / not healthy. */
+:root {
+  --canvas: #EEF0F4;
+  --ink: #0E1422;
+  --rail: #0E1422;
+  --inset: #F4F6FB;
+  --hairline: #EEF0F4;
+  --label: #6E7790;
+  --cobalt: #2848E8;
+  --cobalt-tint: #EEF1FE;
+  --healthy: #047857;
+  --healthy-bg: #D1FAE5;
+  --watch: #92400E;
+  --watch-bg: #FEF3C7;
+  --weak: #B91C1C;
+  --weak-bg: #FEE2E2;
+  --dot-grid: #D9DDE6;
+  --card-shadow: 0 1px 2px rgba(14, 20, 34, 0.04), 0 18px 40px -18px rgba(14, 20, 34, 0.18);
+  --background: #EEF0F4;
+  --foreground: #0E1422;
+  --card: #FFFFFF;
+  --card-foreground: #0E1422;
+  --popover: #FFFFFF;
+  --popover-foreground: #0E1422;
+  --primary: #2848E8;
+  --ai: #E8662E; /* AI orange (D, 2026-10-12) */
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F3F7;
+  --secondary-foreground: #0E1422;
+  --muted: #F4F6FB;
+  --row-hover-solid: #F7F8FB; /* muted/60 over card plus the row hover tint, opaque */
+  --total-row-solid: #F8F9FB;
+  --muted-foreground: #5B6478;
+  --accent: #EEF1FE;
+  --accent-foreground: #1A33B8;
+  --destructive: #B91C1C;
+  --destructive-foreground: #FFFFFF;
+  --success: #047857;
+  --success-foreground: #FFFFFF;
+  --warning: #B45309;
+  --warning-foreground: #FFFFFF;
+  --border: #E1E4EB;
+  --input: #E1E4EB;
+  --ring: #2848E8;
+  --chart-1: #2848E8;
+  --chart-2: #0EA5A4;
+  --chart-3: #7C3AED;
+  --chart-4: #D97706;
+  --chart-5: #DB2777;
+  --radius: 0.75rem;
+  --sidebar: #0E1422;
+  --sidebar-foreground: #C7CEDC;
+  --sidebar-primary: #FFFFFF;
+  --sidebar-primary-foreground: #0E1422;
+  --sidebar-accent: #1A2233;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #273042;
+  --sidebar-ring: #7B93FF;
+}
+
+.dark {
+  --canvas: #080B10;
+  --ink: #EEF2F7;
+  --rail: #0A0E14;
+  --inset: #131A24;
+  --hairline: #1B2330;
+  --label: #8A94A6;
+  --cobalt: #7B93FF;
+  --cobalt-tint: #182040;
+  --healthy: #5EE0A8;
+  --healthy-bg: rgba(94, 224, 168, 0.12);
+  --watch: #F5B544;
+  --watch-bg: rgba(245, 181, 68, 0.12);
+  --weak: #FF7B7B;
+  --weak-bg: rgba(255, 107, 107, 0.12);
+  --dot-grid: #121824;
+  --card-shadow: 0 0 0 1px #1B2330;
+  --background: #080B10;
+  --foreground: #EEF2F7;
+  --card: #0E131B;
+  --card-foreground: #EEF2F7;
+  --popover: #111722;
+  --popover-foreground: #EEF2F7;
+  --primary: #7B93FF;
+  --ai: #F0814D;
+  --primary-foreground: #080B10;
+  --secondary: #151B25;
+  --secondary-foreground: #EEF2F7;
+  --muted: #131A24;
+  --row-hover-solid: #141A23;
+  --total-row-solid: #131A24;
+  --muted-foreground: #A9B2C0;
+  --accent: #182040;
+  --accent-foreground: #C9D3FF;
+  --destructive: #FF7B7B;
+  --destructive-foreground: #080B10;
+  --success: #5EE0A8;
+  --success-foreground: #080B10;
+  --warning: #F5B544;
+  --warning-foreground: #080B10;
+  --border: #1F2836;
+  --input: #273142;
+  --ring: #7B93FF;
+  --chart-1: #7B93FF;
+  --chart-2: #2DD4BF;
+  --chart-3: #A78BFA;
+  --chart-4: #FBBF24;
+  --chart-5: #F472B6;
+  --sidebar: #0A0E14;
+  --sidebar-foreground: #A9B2C0;
+  --sidebar-primary: #EEF2F7;
+  --sidebar-primary-foreground: #080B10;
+  --sidebar-accent: #151B25;
+  --sidebar-accent-foreground: #EEF2F7;
+  --sidebar-border: #1B2330;
+  --sidebar-ring: #7B93FF;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-instrument), "Instrument Sans", system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+  h1 {
+    font-family: var(--font-sora), "Sora", system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* The canvas: a quiet dot grid behind the floating cards. */
+.canvas-grid {
+  background-color: var(--canvas);
+  background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Touch screens (2026-09-29, D: "Comms zooms in when I tap the message box"): iOS Safari zooms into any
+   text box whose font is under 16px. Unlayered on purpose so it beats the text-[14px] utilities. */
+@media (pointer: coarse) {
+  textarea, select, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) { font-size: 16px; }
+}
+
+/* Printing (2026-10-01, D: the invoice PDF "just looks like a screenshot"): paper margins, white page,
+   light theme colours even when the app is dark, and table rows that never split across pages. */
+@media print {
+  @page { size: letter; margin: 14mm 12mm; }
+  html, body { background: #fff !important; color: #0E1422 !important; }
+  tr { break-inside: avoid; }
+  thead { display: table-header-group; }
+  /* paper is always light: dark-theme greys would vanish on white */
+  :root, .dark {
+    --background: #FFFFFF; --foreground: #0E1422; --card: #FFFFFF; --card-foreground: #0E1422; --muted: #F4F6FB;
+    --muted-foreground: #4A5368; --label: #5B6478; --hairline: #DCE0E8; --border: #D3D8E2; --inset: #F4F6FB;
+    --healthy: #047857; --healthy-bg: #D1FAE5; --watch: #92400E; --watch-bg: #FEF3C7; --weak: #B91C1C; --weak-bg: #FEE2E2;
+  }
+}
+
+/* a scroller without a visible bar (the left rail, 2026-10-09: it could not scroll when the businesses overflow) */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Phone glass (iOS look, D 2026-10-15: "apple glass", glass on the controls only, never on content): the floating tab bar, the round
+   Ask button and the top bar pills. Light and dark keep the same blur; only the tint changes. */
+.glass {
+  background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.38));
+  -webkit-backdrop-filter: blur(14px) saturate(220%) brightness(1.04);
+  backdrop-filter: blur(14px) saturate(220%) brightness(1.04);
+  border: 1px solid rgba(255,255,255,.75);
+  box-shadow: 0 14px 40px rgba(20,30,60,.20), inset 0 1.5px 1px rgba(255,255,255,.9), inset 0 -1px 1px rgba(255,255,255,.35);
+}
+.dark .glass {
+  background: linear-gradient(180deg, rgba(48,52,62,.66), rgba(28,31,38,.52));
+  border-color: rgba(255,255,255,.12);
+  box-shadow: 0 14px 40px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,.14);
+}
+.glass-pill {
+  background: rgba(255,255,255,.65);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.9);
+  box-shadow: 0 4px 16px rgba(20,30,60,.10);
+}
+.dark .glass-pill { background: rgba(44,48,58,.7); border-color: rgba(255,255,255,.1); box-shadow: 0 4px 16px rgba(0,0,0,.35); }
+/* Phones: the iOS grouped background, no dot grid (the cards float on plain grey like Settings on an iPhone). */
+@media (max-width: 767px) {
+  .canvas-grid { background-image: none; }
+  :root:not(.dark) .canvas-grid { background-color: #F2F2F7; }
+}
+
+/* Phones (iOS look, D 2026-10-15): one look for every page, set here so each page follows. Apple's system font, plain sentence-case card
+   labels (no spaced capitals), 34 px bold titles, and the ink cards drawn as plain white cards (D: "don't add the gradient", glass is for
+   the controls only). The light tokens below are the :root ones, re-declared on the ink card so it reads light on a light phone. */
+@media (max-width: 767px) {
+  body, h1, h2, h3, .font-heading, .font-mono, .micro-label, [data-slot="table-head"] {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  }
+  .font-mono { font-variant-numeric: tabular-nums; letter-spacing: 0 !important; }
+  .micro-label { font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--muted-foreground); }
+  h1 { font-size: 34px !important; font-weight: 700 !important; letter-spacing: -0.02em; line-height: 1.1 !important; }
+  :root:not(.dark) .ink-card {
+    --canvas: #EEF0F4;
+    --ink: #0E1422;
+    --rail: #0E1422;
+    --inset: #F4F6FB;
+    --hairline: #EEF0F4;
+    --label: #6E7790;
+    --cobalt: #2848E8;
+    --cobalt-tint: #EEF1FE;
+    --healthy: #047857;
+    --healthy-bg: #D1FAE5;
+    --watch: #92400E;
+    --watch-bg: #FEF3C7;
+    --weak: #B91C1C;
+    --weak-bg: #FEE2E2;
+    --dot-grid: #D9DDE6;
+    --card-shadow: 0 1px 2px rgba(14, 20, 34, 0.04), 0 18px 40px -18px rgba(14, 20, 34, 0.18);
+    --background: #EEF0F4;
+    --foreground: #0E1422;
+    --card: #FFFFFF;
+    --card-foreground: #0E1422;
+    --popover: #FFFFFF;
+    --popover-foreground: #0E1422;
+    --primary: #2848E8;
+    --ai: #E8662E; /* AI orange (D, 2026-10-12) */
+    --primary-foreground: #FFFFFF;
+    --secondary: #F1F3F7;
+    --secondary-foreground: #0E1422;
+    --muted: #F4F6FB;
+    --row-hover-solid: #F7F8FB; /* muted/60 over card plus the row hover tint, opaque */
+    --total-row-solid: #F8F9FB;
+    --muted-foreground: #5B6478;
+    --accent: #EEF1FE;
+    --accent-foreground: #1A33B8;
+    --destructive: #B91C1C;
+    --destructive-foreground: #FFFFFF;
+    --success: #047857;
+    --success-foreground: #FFFFFF;
+    --warning: #B45309;
+    --warning-foreground: #FFFFFF;
+    --border: #E1E4EB;
+    --input: #E1E4EB;
+    --ring: #2848E8;
+    --chart-1: #2848E8;
+    --chart-2: #0EA5A4;
+    --chart-3: #7C3AED;
+    --chart-4: #D97706;
+    --chart-5: #DB2777;
+    --radius: 0.75rem;
+    --sidebar: #0E1422;
+    --sidebar-foreground: #C7CEDC;
+    --sidebar-primary: #FFFFFF;
+    --sidebar-primary-foreground: #0E1422;
+    --sidebar-accent: #1A2233;
+    --sidebar-accent-foreground: #FFFFFF;
+    --sidebar-border: #273042;
+    --sidebar-ring: #7B93FF;
+    background-color: var(--card) !important;
+    box-shadow: var(--card-shadow) !important;
+    color: var(--foreground);
+  }
+}
+/* the table a phone list stands in for (components/shared/find-rows.tsx PhoneRows) */
+/* kept rendered but out of sight (not display:none), so its cells still read with their spacing and its links and buttons still work */
+@media (max-width: 767px) {
+  .phone-table-hidden { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip-path: inset(50%); white-space: nowrap; }
+}
+/* Phones, tagged by components/shared/phone-lists.tsx (the build drops :has()). The boards: one hero number full width, the other numbers two by two): a Medium number card takes half the row on a phone;
+   the page's ink (headline) card and every list or chart card keep the whole row. Small and Full cards are unchanged. */
+@media (max-width: 767px) {
+  .phone-half { grid-column: span 1 / span 1 !important; }
+  .phone-full { grid-column: 1 / -1 !important; }
+}
+/* Phones (the boards): a card that holds a list loses its own white card: its title becomes the grey section header above the list and
+   the list's rows are the white inset group, like Settings on an iPhone. */
+@media (max-width: 767px) {
+  .phone-group { background: transparent !important; box-shadow: none !important; padding-top: 0 !important; padding-bottom: 0 !important; gap: 8px !important; }
+  .phone-group > div { padding-left: 0 !important; padding-right: 0 !important; }
+  .phone-group > div > div > h2 { padding: 0 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; color: var(--muted-foreground); }
+  .phone-group > div > div > .micro-label { display: none; }
+  .phone-group > div > div > details { padding: 0 16px; }
+}
+/* Phones: the AI pages scroll inside their own box, so the floating tab bar's room goes at the end of that box: the content scrolls
+   up behind the glass bar instead of stopping short above it (D 2026-10-15: "a big gap at the bottom of pages"). The chat's own typing
+   box sits just above the bar (components/ai/conversation.tsx). */
+@media (max-width: 767px) {
+  [data-ai-page] > .h-full.overflow-y-auto { padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important; }
+}

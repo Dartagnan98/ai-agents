@@ -1,0 +1,165 @@
+/* Liquid glass (D, 2026-10-28; canvas "the agency AI Agents Redesign", Apple glass rows). Apple's way: a quiet wallpaper behind a see-through window,
+   a floating glass sidebar, every card glass, system colours, SF type. The lens is an edge-only displacement map (components/shared/glass-defs.tsx,
+   public/glass/disp-*.png) plus a rendered specular rim (spec-*.png); Chromium bends, Safari/Firefox get the blur and rim only.
+   Dark: smoked glass, no rim map, a crisp 1px hairline edge. Loaded after globals.css (app/layout.tsx), so these tokens win. */
+
+/* ---------- tokens: Apple system palette ---------- */
+:root {
+  --background: #F2F2F7; --canvas: #F2F2F7; --foreground: #1C1C1E; --ink: #1C1C1E;
+  --card: #FFFFFF; --card-foreground: #1C1C1E; --popover: #FFFFFF; --popover-foreground: #1C1C1E;
+  --primary: #007AFF; --primary-foreground: #FFFFFF; --cobalt: #007AFF; --cobalt-tint: rgba(0, 122, 255, .12); --ring: #007AFF;
+  --accent: #E5F0FF; --accent-foreground: #0060DF;
+  --secondary: #EFEFF4; --secondary-foreground: #1C1C1E; --muted: #EFEFF4; --inset: #EFEFF4;
+  --muted-foreground: #48484A; --label: #6C6C70;
+  --border: #E2E2E7; --input: #D8D8DE; --hairline: #E5E5EA;
+  --healthy: #248A3D; --healthy-bg: #E3F6E8; --watch: #C93400; --watch-bg: #FFF1E0; --weak: #D70015; --weak-bg: #FFE5E7;
+  --success: #248A3D; --warning: #C93400; --destructive: #D70015;
+  --chart-1: #007AFF; --chart-2: #30B0C7; --chart-3: #5856D6; --chart-4: #FF9500; --chart-5: #FF2D55;
+  --ai: #FF9500;
+  --row-hover-solid: #F5F5F8; --total-row-solid: #F5F5F8;
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+  --lg-wall: #EEF1F6 url(/glass/wallpaper-light.jpg) center / cover no-repeat;
+}
+.dark {
+  --background: #000000; --canvas: #000000; --foreground: #F2F2F7; --ink: #F2F2F7;
+  --card: #1C1C1E; --card-foreground: #F2F2F7; --popover: #1C1C1E; --popover-foreground: #F2F2F7;
+  --primary: #0A84FF; --primary-foreground: #FFFFFF; --cobalt: #0A84FF; --cobalt-tint: rgba(10, 132, 255, .2); --ring: #0A84FF;
+  --accent: rgba(10, 132, 255, .2); --accent-foreground: #64D2FF;
+  --secondary: #2C2C2E; --secondary-foreground: #F2F2F7; --muted: #2C2C2E; --inset: #2C2C2E;
+  --muted-foreground: #AEAEB2; --label: #8E8E93;
+  --border: #38383A; --input: #48484A; --hairline: #2C2C2E;
+  --healthy: #30D158; --healthy-bg: rgba(48, 209, 88, .16); --watch: #FF9F0A; --watch-bg: rgba(255, 159, 10, .16); --weak: #FF6961; --weak-bg: rgba(255, 69, 58, .16);
+  --success: #30D158; --warning: #FF9F0A; --destructive: #FF453A;
+  --chart-1: #0A84FF; --chart-2: #64D2FF; --chart-3: #5E5CE6; --chart-4: #FF9F0A; --chart-5: #FF375F;
+  --ai: #FF9F0A;
+  --row-hover-solid: #242426; --total-row-solid: #242426;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  --lg-wall: #101014 url(/glass/wallpaper-dark.jpg) center / cover no-repeat;
+}
+
+/* ---------- type: SF everywhere, rounded numbers, sentence-case labels (the phone rules, now desktop too) ---------- */
+body, h1, h2, h3, button, input, select, textarea {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-instrument), system-ui, sans-serif;
+}
+.font-heading { font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, var(--font-sora), sans-serif; }
+.micro-label, [data-slot="table-head"] { font-family: inherit; font-size: 12.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--muted-foreground); }
+
+/* ---------- shell: wallpaper, window, floating sidebar ---------- */
+.lg-frame { background: var(--lg-wall); }
+@media (min-width: 768px) {
+  /* no window panel around the app (D, 2026-10-28: "don't do the card in a card"): the sidebar card and the page sit on the wallpaper */
+  .lg-side-wrap { padding: 14px 0 14px 14px; }
+  .canvas-grid { background-image: none; background-color: transparent; }
+}
+.lg-side {
+  border-radius: 18px;
+  background: url(/glass/spec-tall.png) 0 0 / 100% 100% no-repeat, rgba(255, 255, 255, .6);
+  -webkit-backdrop-filter: blur(4px) saturate(1.9) brightness(1.08);
+  backdrop-filter: blur(1.5px) url(#lg-tall) saturate(1.9) brightness(1.08);
+  box-shadow: inset 1.5px 1.5px 1px rgba(255, 255, 255, .95), inset -1px -1px 1px rgba(255, 255, 255, .5), inset 0 0 0 .5px rgba(255, 255, 255, .7), 0 10px 30px rgba(0, 0, 0, .14);
+}
+.dark .lg-side {
+  background: rgba(32, 32, 36, .52);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 0 0 1px rgba(255, 255, 255, .1), 0 0 0 1px rgba(0, 0, 0, .55), 0 10px 30px rgba(0, 0, 0, .5);
+}
+/* the selected row: blue-tinted glass */
+.lg-tint {
+  background: url(/glass/spec-tile.png) 0 0 / 100% 100% no-repeat, rgba(0, 122, 255, .14);
+  box-shadow: inset 1px 1px 1px rgba(255, 255, 255, .8), inset 0 0 0 .5px rgba(0, 122, 255, .25), 0 4px 12px rgba(0, 122, 255, .15);
+}
+.dark .lg-tint { background: rgba(10, 132, 255, .3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .08); }
+/* menus and popovers that float over the glass */
+/* nearly solid: a menu inside the glass sidebar cannot blur what is behind it (a nested backdrop-filter sees nothing), so the sidebar's links
+   showed through (D, 2026-10-28: "drop down for sub account don't match") */
+.lg-pop {
+  background: rgba(255, 255, 255, .97);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8); backdrop-filter: blur(20px) saturate(1.8);
+  box-shadow: inset 1px 1px 1px rgba(255, 255, 255, .9), 0 0 0 .5px rgba(0, 0, 0, .1), 0 24px 60px -12px rgba(0, 0, 0, .25);
+}
+.dark .lg-pop { background: rgba(38, 38, 42, .98); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 0 0 1px rgba(255, 255, 255, .08), 0 24px 60px -12px rgba(0, 0, 0, .6); }
+
+/* ---------- cards: every KpiTile, Section and shadcn Card is glass ----------
+   The glass is painted on ::before so the card never becomes the containing block for position:fixed children (menus, call pop-ups). */
+.lg-card, .lg-glass, [data-slot="card"], .bg-card.shadow-\[var\(--card-shadow\)\] { isolation: isolate; background: transparent !important; box-shadow: var(--card-shadow) !important; }
+.lg-card::before, .lg-glass::before, [data-slot="card"]::before, .bg-card.shadow-\[var\(--card-shadow\)\]::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+  background: url(/glass/spec-wide.png) 0 0 / 100% 100% no-repeat, rgba(255, 255, 255, .82);
+  -webkit-backdrop-filter: blur(6px) saturate(1.9) brightness(1.08);
+  backdrop-filter: blur(1.5px) url(#lg-wide) saturate(1.9) brightness(1.08);
+  box-shadow: inset 1px 1px 1px rgba(255, 255, 255, .8), inset 0 0 0 .5px rgba(255, 255, 255, .6);
+}
+[data-kpi].lg-card::before { background: url(/glass/spec-tile.png) 0 0 / 100% 100% no-repeat, rgba(255, 255, 255, .82); backdrop-filter: blur(1.5px) url(#lg-tile) saturate(1.9) brightness(1.08); }
+.dark .lg-card::before, .dark .lg-glass::before, .dark [data-slot="card"]::before, .dark [data-kpi].lg-card::before, .dark .bg-card.shadow-\[var\(--card-shadow\)\]::before {
+  background: rgba(38, 38, 42, .66);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), inset 1px 0 0 rgba(255, 255, 255, .05), inset 0 0 0 1px rgba(255, 255, 255, .1), inset 0 14px 22px -16px rgba(255, 255, 255, .1);
+}
+.dark .lg-card, .dark .lg-glass, .dark [data-slot="card"], .dark .bg-card.shadow-\[var\(--card-shadow\)\] { box-shadow: 0 0 0 1px rgba(0, 0, 0, .55), 0 10px 30px rgba(0, 0, 0, .45) !important; }
+:where(.lg-card, .lg-glass, [data-slot="card"], .bg-card.shadow-\[var\(--card-shadow\)\]):not(.absolute):not(.fixed):not(.sticky) { position: relative; }
+/* a card set to Dark (lib/cards/tone.ts DARK_CARD) on a light page: near-solid ink with a hairline edge, not muddy smoke */
+/* desktop only: on phones the ink card is drawn as a plain white card (app/globals.css, D 2026-10-15), so it keeps the light glass there */
+@media (min-width: 768px) {
+  :root:not(.dark) .ink-card.lg-card::before {
+    background: rgba(28, 28, 30, .94); -webkit-backdrop-filter: none; backdrop-filter: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .08);
+  }
+}
+.ink-card.lg-card { background: transparent !important; }
+
+/* ---------- motion: Apple-like springs; nothing moves with Reduce Motion ---------- */
+/* no fade-in: a card that changes layout when the window narrows replayed it from invisible (D, 2026-10-28: "the pages disappear when you
+   make the screen smaller") */
+.lg-card { transition: transform .45s cubic-bezier(.2, .9, .3, 1.25), box-shadow .45s; }
+@media (hover: hover) {
+  .lg-card:hover { transform: translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-card { animation: none !important; transition: none !important; }
+  .lg-card:hover { transform: none; }
+}
+@media print {
+  .lg-frame { background: none; padding: 0; }
+  .lg-window, .lg-main { background: none; box-shadow: none; border-radius: 0; }
+  .lg-card::before, [data-slot="card"]::before, .bg-card.shadow-\[var\(--card-shadow\)\]::before { background: #FFFFFF; backdrop-filter: none; box-shadow: none; }
+}
+
+/* ---------- donuts (components/charts/ring.tsx): the hard line between parts is the card's own colour ---------- */
+:root { --ring-gap: #FFFFFF; }
+.dark { --ring-gap: #2A2A2E; }
+.lg-ring-part { transition: opacity .2s, transform .25s cubic-bezier(.2, .9, .3, 1.25); transform-origin: 50px 50px; }
+.lg-ring-part[data-hot] { transform: scale(1.05); }
+
+/* ---------- labels: plain sentence case, not mono capitals (Apple; the canvas) ----------
+   The old small mono capitals (table heads, "vs previous period", eyebrows) read as the system font in the words as written. */
+.font-mono.uppercase, thead th { font-family: inherit !important; text-transform: none !important; letter-spacing: 0 !important; }
+.font-mono.uppercase { font-size: 12px !important; font-weight: 500; }
+thead th { font-size: 12.5px !important; font-weight: 600 !important; color: var(--muted-foreground); }
+.micro-label { font-family: inherit; text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 600; color: var(--muted-foreground); }
+
+/* ---------- lists on the AI, Operations and Intelligence pages: no lines between rows, a soft hover instead (D, 2026-10-28) ---------- */
+main[data-flat] .lg-card .divide-y > *, main[data-flat] .lg-card .divide-y { border-top-width: 0 !important; border-bottom-width: 0 !important; }
+main[data-flat] .lg-card .divide-y { display: flex; flex-direction: column; gap: 2px; padding-inline: 8px; }
+main[data-flat] .lg-card .divide-y > * { border-radius: 12px; }
+main[data-flat] .lg-card .divide-y > *:hover { background: color-mix(in srgb, var(--foreground) 4%, transparent); }
+main[data-flat] .lg-card details.border-b { border-bottom-width: 0; }
+
+/* the Operations and Intelligence pages (not under /ai, whose pages use AI_PAGE): the same 1240px column, centred (D, 2026-10-28: "not so wide") */
+main[data-flat]:not(.flex) > * { max-width: 1240px; margin-inline: auto; }
+
+/* every remaining small-capitals label (section names like "Closers", "Deals list", notes like "No comparison") in the words as written */
+.uppercase { text-transform: none !important; letter-spacing: 0 !important; }
+
+/* pop-ups above the page (D, 2026-10-28: "pop ups getting behind other things"): every glass card is its own layer (isolation), so a menu
+   opened inside the sidebar or a card was drawn under the cards that come after it. The sidebar sits above the page; a card in use
+   (hovered, or something inside it focused or open) sits above its neighbours. */
+@media (min-width: 768px) { .lg-side-wrap { position: relative; z-index: 30; } }
+:where(.lg-card, [data-slot="card"], .bg-card.shadow-\[var\(--card-shadow\)\]):is(:hover, :focus-within, :has([data-open], [aria-expanded="true"], [data-state="open"])) { z-index: 20; }
+
+/* AI › Graph motion (components/ai/memory-graph.tsx): the picked dot's ring pulses out; the side panel slides in over the map */
+.graph-pulse { transform-box: fill-box; transform-origin: center; animation: graph-pulse 1.8s ease-out infinite; }
+@keyframes graph-pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(2.6); opacity: 0; } }
+.graph-panel { animation: graph-panel-in .28s cubic-bezier(.2, .8, .2, 1); }
+@keyframes graph-panel-in { from { transform: translateY(12px); opacity: 0; } }
+@media (min-width: 768px) { @keyframes graph-panel-in { from { transform: translateX(16px); opacity: 0; } } }
+@media (prefers-reduced-motion: reduce) { .graph-pulse, .graph-panel { animation: none; } }
