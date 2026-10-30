@@ -103,6 +103,13 @@ const g = globalThis as unknown as { __waKids?: Map<string, { proc: ChildProcess
 const kids = (g.__waKids ??= new Map());
 const kidKey = (key: string) => `${agencyIdNow()}:${key}`;
 
+/** The bridge's gate lists (pure). An empty one stays unset: the bridge refuses to start on a list that is set but empty, and unset means
+ *  no gate there (lib/wa/inbound.ts still lets only admins wake the agent). */
+export function bridgeLists(n: Pick<WaNumber, 'admins' | 'groups' | 'ambient'>): Record<string, string> {
+  const allow = [...Object.keys(n.admins), ...n.groups].join(','), ambient = n.ambient.join(',');
+  return { ...(allow && { WHATSAPP_INBOUND_ALLOWLIST: allow }), ...(ambient && { WHATSAPP_AMBIENT_GROUPS: ambient }) };
+}
+
 function start(n: WaNumber) {
   const s = secrets(n.key);
   if (!s) return;
@@ -112,14 +119,13 @@ function start(n: WaNumber) {
   fs.mkdirSync(path.join(dir, 'store'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'port'), String(n.port));
   killStale(dir); // a bridge left over from another app copy or an earlier run would hold the port
-  const allow = [...Object.keys(n.admins), ...n.groups].join(',');
   const out = fs.openSync(path.join(dir, 'bridge.log'), 'a');
   const proc = spawn(bin, [], { cwd: dir, stdio: ['ignore', out, out], env: {
     PATH: '/usr/bin:/bin', HOME: dir, TZ: 'UTC',
     WHATSAPP_BRIDGE_PORT: String(n.port), WHATSAPP_BRIDGE_TOKEN: s.bridge,
     WEBHOOK_URL: `http://127.0.0.1:${process.env.PORT || '3000'}/api/wa/inbound/${encodeURIComponent(agencyIdNow())}?n=${encodeURIComponent(n.key)}&t=${encodeURIComponent(s.hook)}`,
     // no send allow list: an empty one makes the bridge refuse to start; who may wake the agent is the gate that matters
-    WHATSAPP_INBOUND_ALLOWLIST: allow, WHATSAPP_AMBIENT_GROUPS: n.ambient.join(','),
+    ...bridgeLists(n),
     WHATSAPP_MEDIA_ROOTS: path.join(dir, 'outbox'), FORWARD_SELF: 'false', WHATSAPP_LOG_LEVEL: 'INFO',
   } as unknown as NodeJS.ProcessEnv });
   fs.closeSync(out);
