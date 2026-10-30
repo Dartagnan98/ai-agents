@@ -98,7 +98,7 @@ export function removeNumber(key: string) {
 
 // ─── the bridges (children of the app copy that runs the routine clock) ───
 const dirOf = (key: string) => path.join(waRoot(), agencyIdNow(), key);
-const bridgeBin = () => process.env.WA_BRIDGE_BIN || '/opt/fleet-wa/whatsapp-bridge';
+const bridgeBin = () => process.env.WA_BRIDGE_BIN || path.join(process.cwd(), 'whatsapp-bridge', 'whatsapp-bridge');
 const g = globalThis as unknown as { __waKids?: Map<string, { proc: ChildProcess; started: number; fails: number; next: number }> };
 const kids = (g.__waKids ??= new Map());
 const kidKey = (key: string) => `${agencyIdNow()}:${key}`;
@@ -107,7 +107,7 @@ function start(n: WaNumber) {
   const s = secrets(n.key);
   if (!s) return;
   const bin = bridgeBin();
-  if (!fs.existsSync(bin)) { console.warn(`[wa] no bridge at ${bin}`); return; }
+  if (!fs.existsSync(bin)) { console.warn(`[wa] no bridge at ${bin}: run npm run build:wa-bridge`); return; }
   const dir = dirOf(n.key);
   fs.mkdirSync(path.join(dir, 'store'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'port'), String(n.port));
@@ -177,7 +177,7 @@ export async function numberStatus(key: string): Promise<{ running: boolean; con
   const qr = !connected && fs.existsSync(qrFile) && Date.now() - fs.statSync(qrFile).mtimeMs < 120_000 ? fs.readFileSync(qrFile, 'utf8').trim() : null;
   let log = '';
   try { log = fs.readFileSync(path.join(dirOf(key), 'bridge.log'), 'utf8').split('\n').filter((l) => l.trim()).slice(-8).join('\n'); } catch { /* none yet */ }
-  return { running, connected, qr, log: connected ? '' : log.slice(-1500) };
+  return { running, connected, qr, log: connected ? '' : fs.existsSync(bridgeBin()) ? log.slice(-1500) : `No bridge at ${bridgeBin()}: run npm run build:wa-bridge` };
 }
 
 /** A call to the number's bridge (send, react). */

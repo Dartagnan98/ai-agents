@@ -101,7 +101,15 @@ Agents recall what matters before every answer. You can see and edit everything 
 - **Allowed roots**: folders on this computer the agents may read and send files from.
 - **Appearance**: light or dark.
 
-## Your data
+## WhatsApp
+
+Each WhatsApp number is linked to this computer as a device, like WhatsApp Web: add the number in **Settings › AI connections** and scan the QR with the phone. The link runs through a small Go program, the bridge, in [`whatsapp-bridge/`](whatsapp-bridge/) (built on [whatsmeow](https://github.com/tulir/whatsmeow)).
+
+- **You need** Go 1.26 or newer ([go.dev/dl](https://go.dev/dl/)) and a C compiler (the bridge's SQLite driver uses cgo: Xcode Command Line Tools on a Mac, `build-essential` on Debian/Ubuntu).
+- **Build it** with `npm run build:wa-bridge`. That makes `whatsapp-bridge/whatsapp-bridge`. `npm run setup` builds it too when Go is installed. Run it again after pulling bridge changes.
+- **Another place:** set `WA_BRIDGE_BIN` in `.env.local` to the path of a bridge binary built elsewhere.
+- **You do not start it yourself.** The app starts one bridge per live number and restarts it if it stops. Each number's WhatsApp session lives in `data/wa/<agency>/<number key>/store`. Delete that folder (or the number) to unlink.
+
 
 Everything lives in `./data`: the databases, uploaded files, memory and the agents' workspace.
 
@@ -136,7 +144,7 @@ To reach it from other devices, put it behind a reverse proxy with HTTPS (Caddy 
 ## Good to know
 
 - **Script workspace:** the `workspace_*` tools (agents running Python and shell scripts in a sandbox) need a Linux server with systemd and a `fleetwork` user. On a Mac or Windows laptop they stay off; everything else works.
-- **WhatsApp** needs the separate WhatsApp bridge running on the same machine. Telegram and Slack work with just their bot tokens.
+- **WhatsApp** needs the bridge built once (see [WhatsApp](#whatsapp)). Telegram and Slack work with just their bot tokens.
 - **Costs:** with a Claude subscription, the agents use your plan's limits. With API keys, you pay per use. Set a daily cap per agent on **Agents** to stay in control.
 
 ## Development
