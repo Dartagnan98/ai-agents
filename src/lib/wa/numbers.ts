@@ -98,28 +98,34 @@ export function removeNumber(key: string) {
 
 // ─── the bridges (children of the app copy that runs the routine clock) ───
 const dirOf = (key: string) => path.join(waRoot(), agencyIdNow(), key);
-const bridgeBin = () => process.env.WA_BRIDGE_BIN || '/opt/fleet-wa/whatsapp-bridge';
+const bridgeBin = () => process.env.WA_BRIDGE_BIN || path.join(process.cwd(), 'whatsapp-bridge', 'whatsapp-bridge');
 const g = globalThis as unknown as { __waKids?: Map<string, { proc: ChildProcess; started: number; fails: number; next: number }> };
 const kids = (g.__waKids ??= new Map());
 const kidKey = (key: string) => `${agencyIdNow()}:${key}`;
+
+/** The bridge's gate lists (pure). An empty one stays unset: the bridge refuses to start on a list that is set but empty, and unset means
+ *  no gate there (lib/wa/inbound.ts still lets only admins wake the agent). */
+export function bridgeLists(n: Pick<WaNumber, 'admins' | 'groups' | 'ambient'>): Record<string, string> {
+  const allow = [...Object.keys(n.admins), ...n.groups].join(','), ambient = n.ambient.join(',');
+  return { ...(allow && { WHATSAPP_INBOUND_ALLOWLIST: allow }), ...(ambient && { WHATSAPP_AMBIENT_GROUPS: ambient }) };
+}
 
 function start(n: WaNumber) {
   const s = secrets(n.key);
   if (!s) return;
   const bin = bridgeBin();
-  if (!fs.existsSync(bin)) { console.warn(`[wa] no bridge at ${bin}`); return; }
+  if (!fs.existsSync(bin)) { console.warn(`[wa] no bridge at ${bin}: run npm run build:wa-bridge`); return; }
   const dir = dirOf(n.key);
   fs.mkdirSync(path.join(dir, 'store'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'port'), String(n.port));
   killStale(dir); // a bridge left over from another app copy or an earlier run would hold the port
-  const allow = [...Object.keys(n.admins), ...n.groups].join(',');
   const out = fs.openSync(path.join(dir, 'bridge.log'), 'a');
   const proc = spawn(bin, [], { cwd: dir, stdio: ['ignore', out, out], env: {
     PATH: '/usr/bin:/bin', HOME: dir, TZ: 'UTC',
     WHATSAPP_BRIDGE_PORT: String(n.port), WHATSAPP_BRIDGE_TOKEN: s.bridge,
     WEBHOOK_URL: `http://127.0.0.1:${process.env.PORT || '3000'}/api/wa/inbound/${encodeURIComponent(agencyIdNow())}?n=${encodeURIComponent(n.key)}&t=${encodeURIComponent(s.hook)}`,
     // no send allow list: an empty one makes the bridge refuse to start; who may wake the agent is the gate that matters
-    WHATSAPP_INBOUND_ALLOWLIST: allow, WHATSAPP_AMBIENT_GROUPS: n.ambient.join(','),
+    ...bridgeLists(n),
     WHATSAPP_MEDIA_ROOTS: path.join(dir, 'outbox'), FORWARD_SELF: 'false', WHATSAPP_LOG_LEVEL: 'INFO',
   } as unknown as NodeJS.ProcessEnv });
   fs.closeSync(out);
@@ -177,7 +183,7 @@ export async function numberStatus(key: string): Promise<{ running: boolean; con
   const qr = !connected && fs.existsSync(qrFile) && Date.now() - fs.statSync(qrFile).mtimeMs < 120_000 ? fs.readFileSync(qrFile, 'utf8').trim() : null;
   let log = '';
   try { log = fs.readFileSync(path.join(dirOf(key), 'bridge.log'), 'utf8').split('\n').filter((l) => l.trim()).slice(-8).join('\n'); } catch { /* none yet */ }
-  return { running, connected, qr, log: connected ? '' : log.slice(-1500) };
+  return { running, connected, qr, log: connected ? '' : fs.existsSync(bridgeBin()) ? log.slice(-1500) : `No bridge at ${bridgeBin()}: run npm run build:wa-bridge` };
 }
 
 /** A call to the number's bridge (send, react). */
