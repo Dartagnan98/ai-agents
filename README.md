@@ -110,6 +110,7 @@ Each WhatsApp number is linked to this computer as a device, like WhatsApp Web: 
 - **Another place:** set `WA_BRIDGE_BIN` in `.env.local` to the path of a bridge binary built elsewhere.
 - **You do not start it yourself.** The app starts one bridge per live number and restarts it if it stops. Each number's WhatsApp session lives in `data/wa/<agency>/<number key>/store`. Delete that folder (or the number) to unlink.
 
+## Your data
 
 Everything lives in `./data`: the databases, uploaded files, memory and the agents' workspace.
 
